@@ -11,7 +11,7 @@ import io.undertow.Undertow;
 
 public class ClientTestBase {
 	public static final String SERVER_HOST = "localhost";
-	public static final int SERVER_PORT = 8090;
+	public static final int SERVER_PORT = 8091;
 	
 	protected UndertowJaxrsServer server;
 	protected Client client;
