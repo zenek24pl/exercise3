@@ -26,16 +26,19 @@ import wdsr.exercise3.model.Record;
 import static org.junit.Assert.*;
 
 public class RecordResourceTest {
+	public static final String SERVER_HOST = "localhost";
+	public static final int SERVER_PORT = 8091;
+	
 	private MyServer server;
 	private Client client;
 	private WebTarget baseTarget;
 	
 	@Before
 	public void setUp() {
-		server = new MyServer();
+		server = new MyServer(SERVER_HOST, SERVER_PORT);
 		server.deploy(RecordApplication.class, "Records inventory", "/", "/");
 		client = ClientBuilder.newClient();
-		baseTarget = client.target("http://"+MyServer.SERVER_HOST+":"+MyServer.SERVER_PORT);
+		baseTarget = client.target("http://"+SERVER_HOST+":"+SERVER_PORT);
 	}
 	
 	@After
