@@ -103,6 +103,21 @@ public class RecordResourceTest {
 		response.close();
 	}
 	
+	@Test
+	public void postRequestToRecords_shouldReturnHttp400_whenIdAlreadySetOnRecord() {
+		// given
+		WebTarget recordsTarget = baseTarget.path("/records");
+		Record record = new Record(300, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
+		
+		// when
+		Response response = recordsTarget.request()
+			.post(Entity.entity(record, MediaType.APPLICATION_XML_TYPE));
+		
+		
+		// then
+		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+		response.close();
+	}
 
 	@Test
 	public void getRequestToRecord_shouldReturnHttp200AndRecord_whenRecordExists() {
@@ -152,7 +167,7 @@ public class RecordResourceTest {
 	}
 	
 	@Test
-	public void putRequestToRecord_shouldReturnHttp204_whenRecordUpdated() {
+	public void putRequestToRecord_shouldReturnHttp204_whenRecordUpdated_recordHasNullID() {
 		// given
 		WebTarget recordsTarget = baseTarget.path("/records");
 		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.DUB);
@@ -179,6 +194,71 @@ public class RecordResourceTest {
 
 		//then
 		assertEquals(updatedRecord.getGenre(), retrievedRecord.getGenre());
+	}
+	
+	@Test
+	public void putRequestToRecord_shouldReturnHttp204_whenRecordUpdated_recordHasSameIDAsPath() {
+		// given
+		WebTarget recordsTarget = baseTarget.path("/records");
+		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.DUB);
+		
+		// when
+		Response postResponse = recordsTarget.request()
+				.post(Entity.entity(record, MediaType.APPLICATION_XML_TYPE));
+		
+		// then
+		assertEquals(Status.CREATED.getStatusCode(), postResponse.getStatus());
+		URI createdRecordResource = postResponse.getLocation();
+		postResponse.close();
+		
+		// when
+		WebTarget recordTarget = client.target(createdRecordResource);
+		String createdRecordPath = createdRecordResource.getPath();
+		int id = Integer.valueOf(createdRecordPath.substring(createdRecordPath.lastIndexOf("/")+1));				
+		Record updatedRecord = new Record(id, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
+		Response result = recordTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(updatedRecord, MediaType.APPLICATION_XML_TYPE));
+
+		//then
+		assertEquals(Status.NO_CONTENT.getStatusCode(), result.getStatus());
+		
+		// when
+		Record retrievedRecord = recordTarget.request(MediaType.APPLICATION_XML_TYPE).get(Record.class);
+
+		//then
+		assertEquals(updatedRecord.getGenre(), retrievedRecord.getGenre());
+	}	
+	
+	@Test
+	public void putRequestToRecord_shouldReturnHttp400_whenIdMismatch() {
+		// given
+		WebTarget recordsTarget = baseTarget.path("/records");
+		Record originalRecord = new Record("Rastaman Vibration", "Bob Marley", Genre.DUB);
+		
+		// when
+		Response postResponse = recordsTarget.request()
+				.post(Entity.entity(originalRecord, MediaType.APPLICATION_XML_TYPE));
+		
+		// then
+		assertEquals(Status.CREATED.getStatusCode(), postResponse.getStatus());
+		URI createdRecordResource = postResponse.getLocation();
+		postResponse.close();
+		
+		// when
+		WebTarget recordTarget = client.target(createdRecordResource);
+		String createdRecordPath = createdRecordResource.getPath();
+		int id = Integer.valueOf(createdRecordPath.substring(createdRecordPath.lastIndexOf("/")+1));		
+		Record updatedRecord = new Record(id+1, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
+		Response result = recordTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(updatedRecord, MediaType.APPLICATION_XML_TYPE));
+		result.close();
+
+		//then
+		assertEquals("ID in request URL and value of ID field (if present) must be the same", Status.BAD_REQUEST.getStatusCode(), result.getStatus());
+		
+		// when
+		Record retrievedRecord = recordTarget.request(MediaType.APPLICATION_XML_TYPE).get(Record.class);
+
+		//then
+		assertEquals(originalRecord.getGenre(), retrievedRecord.getGenre());
 	}
 
 	@Test

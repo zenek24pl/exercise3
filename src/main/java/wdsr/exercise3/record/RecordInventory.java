@@ -22,6 +22,7 @@ public class RecordInventory {
 	
 	public synchronized int addRecord(final Record record) {
 		int id = counter.incrementAndGet();
+		record.setId(id);
 		records.put(id, record);
 		return id;
 	}
@@ -30,6 +31,7 @@ public class RecordInventory {
 		if (! records.containsKey(id)) {
 			return false;
 		}
+		record.setId(id);
 		records.put(id, record);
 		return true;
 	}
