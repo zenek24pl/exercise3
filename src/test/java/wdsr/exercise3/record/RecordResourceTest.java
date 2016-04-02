@@ -63,8 +63,8 @@ public class RecordResourceTest {
 		// given
 		WebTarget recordsTarget = baseTarget.path("/records");
 		List<Record> records = Arrays.asList(
-				new Record(null, "Rastaman Vibration", "Bob Marley", Genre.REGGAE),		
-				new Record(null, "Eurosis", "Ska-P", Genre.SKA));
+				new Record("Rastaman Vibration", "Bob Marley", Genre.REGGAE),		
+				new Record("Eurosis", "Ska-P", Genre.SKA));
 		
 		for (Record r : records) {
 			// when
@@ -88,7 +88,7 @@ public class RecordResourceTest {
 	public void postRequestToRecords_shouldReturnHttp201_whenRecordAdded() {
 		// given
 		WebTarget recordsTarget = baseTarget.path("/records");
-		Record record = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
+		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.REGGAE);
 		
 		// when
 		Response response = recordsTarget.request()
@@ -100,27 +100,12 @@ public class RecordResourceTest {
 		response.close();
 	}
 	
-	@Test
-	public void postRequestToRecords_shouldReturnHttp400_whenIdAlreadySetOnRecord() {
-		// given
-		WebTarget recordsTarget = baseTarget.path("/records");
-		Record record = new Record(300, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
-		
-		// when
-		Response response = recordsTarget.request()
-			.post(Entity.entity(record, MediaType.APPLICATION_XML_TYPE));
-		
-		
-		// then
-		assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-		response.close();
-	}
-	
+
 	@Test
 	public void getRequestToRecord_shouldReturnHttp200AndRecord_whenRecordExists() {
 		// given
 		WebTarget recordsTarget = baseTarget.path("/records");
-		Record record = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
+		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.REGGAE);
 		
 		// when
 		Response postResponse = recordsTarget.request().post(Entity.entity(record, MediaType.APPLICATION_XML_TYPE));
@@ -155,7 +140,7 @@ public class RecordResourceTest {
 	public void putRequestToRecord_shouldReturnHttp404_whenRecordDoesNotExist() {
 		// given
 		WebTarget recordTarget = baseTarget.path("/records/1");
-		Record record = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
+		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.REGGAE);
 		
 		// when
 		recordTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(record, MediaType.APPLICATION_XML_TYPE), Void.class);
@@ -164,10 +149,10 @@ public class RecordResourceTest {
 	}
 	
 	@Test
-	public void putRequestToRecord_shouldReturnHttp204_whenRecordUpdatedAndIdsMatch() {
+	public void putRequestToRecord_shouldReturnHttp204_whenRecordUpdated() {
 		// given
 		WebTarget recordsTarget = baseTarget.path("/records");
-		Record record = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.DUB);
+		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.DUB);
 		
 		// when
 		Response postResponse = recordsTarget.request()
@@ -180,9 +165,7 @@ public class RecordResourceTest {
 		
 		// when
 		WebTarget recordTarget = client.target(createdRecordResource);
-		String createdRecordPath = createdRecordResource.getPath();
-		int id = Integer.valueOf(createdRecordPath.substring(createdRecordPath.lastIndexOf("/")+1));		
-		Record updatedRecord = new Record(id, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
+		Record updatedRecord = new Record("Rastaman Vibration", "Bob Marley", Genre.REGGAE);
 		Response result = recordTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(updatedRecord, MediaType.APPLICATION_XML_TYPE));
 
 		//then
@@ -194,42 +177,12 @@ public class RecordResourceTest {
 		//then
 		assertEquals(updatedRecord.getGenre(), retrievedRecord.getGenre());
 	}
-	
-	@Test
-	public void putRequestToRecord_shouldReturnHttp204_whenRecordUpdatedAndIdNotPresentOnRecord() {
-		// given
-		WebTarget recordsTarget = baseTarget.path("/records");
-		Record record = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.DUB);
-		
-		// when
-		Response postResponse = recordsTarget.request()
-				.post(Entity.entity(record, MediaType.APPLICATION_XML_TYPE));
-		
-		// then
-		assertEquals(Status.CREATED.getStatusCode(), postResponse.getStatus());
-		URI createdRecordResource = postResponse.getLocation();
-		postResponse.close();
-		
-		// when
-		WebTarget recordTarget = client.target(createdRecordResource);
-		Record updatedRecord = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
-		Response result = recordTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(updatedRecord, MediaType.APPLICATION_XML_TYPE));
 
-		//then
-		assertEquals(Status.NO_CONTENT.getStatusCode(), result.getStatus());
-		
-		// when
-		Record retrievedRecord = recordTarget.request(MediaType.APPLICATION_XML_TYPE).get(Record.class);
-
-		//then
-		assertEquals(updatedRecord.getGenre(), retrievedRecord.getGenre());
-	}
-	
 	@Test
 	public void putRequestToRecord_shouldBeIdempotent() {
 		// given
 		WebTarget recordsTarget = baseTarget.path("/records");
-		Record record = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.DUB);
+		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.DUB);
 		
 		// when
 		Response postResponse = recordsTarget.request()
@@ -242,7 +195,7 @@ public class RecordResourceTest {
 		
 		// when
 		WebTarget recordTarget = client.target(createdRecordResource);
-		Record updatedRecord = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
+		Record updatedRecord = new Record("Rastaman Vibration", "Bob Marley", Genre.REGGAE);
 		Response putResponse = recordTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(updatedRecord, MediaType.APPLICATION_XML_TYPE));
 
 		//then
@@ -262,38 +215,6 @@ public class RecordResourceTest {
 		assertEquals(updatedRecord.getGenre(), retrievedRecord.getGenre());
 	}	
 	
-	@Test
-	public void putRequestToRecord_shouldReturnHttp400_whenIdMismatch() {
-		// given
-		WebTarget recordsTarget = baseTarget.path("/records");
-		Record originalRecord = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.DUB);
-		
-		// when
-		Response postResponse = recordsTarget.request()
-				.post(Entity.entity(originalRecord, MediaType.APPLICATION_XML_TYPE));
-		
-		// then
-		assertEquals(Status.CREATED.getStatusCode(), postResponse.getStatus());
-		URI createdRecordResource = postResponse.getLocation();
-		postResponse.close();
-		
-		// when
-		WebTarget recordTarget = client.target(createdRecordResource);
-		String createdRecordPath = createdRecordResource.getPath();
-		int id = Integer.valueOf(createdRecordPath.substring(createdRecordPath.lastIndexOf("/")+1));		
-		Record updatedRecord = new Record(id+1, "Rastaman Vibration", "Bob Marley", Genre.REGGAE);
-		Response result = recordTarget.request(MediaType.APPLICATION_XML_TYPE).put(Entity.entity(updatedRecord, MediaType.APPLICATION_XML_TYPE));
-		result.close();
-
-		//then
-		assertEquals("ID in request URL and value of ID field (if present) must be the same", Status.BAD_REQUEST.getStatusCode(), result.getStatus());
-		
-		// when
-		Record retrievedRecord = recordTarget.request(MediaType.APPLICATION_XML_TYPE).get(Record.class);
-
-		//then
-		assertEquals(originalRecord.getGenre(), retrievedRecord.getGenre());
-	}		
 	
 	@Test(expected=NotFoundException.class)
 	public void deleteRequestToRecord_shouldReturnHttp404_whenRecordDoesNotExist() {
@@ -310,7 +231,7 @@ public class RecordResourceTest {
 	public void deleteRequestToRecord_shouldReturnHttp204_whenRecordDeletedSuccessfully() {
 		// given
 		WebTarget recordsTarget = baseTarget.path("/records");
-		Record record = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.DUB);
+		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.DUB);
 		
 		// when
 		Response postResponse = recordsTarget.request()
@@ -339,7 +260,7 @@ public class RecordResourceTest {
 	public void deleteRequestToRecord_shouldReturnHttp404_whenRecordAlreadyDeleted() {
 		// given
 		WebTarget recordsTarget = baseTarget.path("/records");
-		Record record = new Record(null, "Rastaman Vibration", "Bob Marley", Genre.DUB);
+		Record record = new Record("Rastaman Vibration", "Bob Marley", Genre.DUB);
 		
 		// when
 		Response postResponse = recordsTarget.request()

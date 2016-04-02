@@ -5,7 +5,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Record {
-	private Integer id;
 	private String title;
 	private String artist;
 	private Genre genre;
@@ -14,16 +13,10 @@ public class Record {
 		// empty - needed for JAXB
 	}
 
-	public Record(Integer id, String title, String artist, Genre genre) {
-		this.id = id;
+	public Record(String title, String artist, Genre genre) {
 		this.title = title;
 		this.artist = artist;
 		this.genre = genre;
-	}
-
-	@XmlElement(required=false, nillable = true)
-	public Integer getId() {
-		return id;
 	}
 
 	@XmlElement(required=true, nillable = false)
@@ -41,10 +34,6 @@ public class Record {
 		return genre;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
 	public void setTitle(String title) {
 		this.title = title;
 	}
@@ -59,6 +48,6 @@ public class Record {
 
 	@Override
 	public String toString() {
-		return "Record [id=" + id + ", title=" + title + ", artist=" + artist + ", genre=" + genre + "]";
+		return "Record [title=" + title + ", artist=" + artist + ", genre=" + genre + "]";
 	}
 }

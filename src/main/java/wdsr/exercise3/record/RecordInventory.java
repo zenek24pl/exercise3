@@ -22,16 +22,15 @@ public class RecordInventory {
 	
 	public synchronized int addRecord(final Record record) {
 		int id = counter.incrementAndGet();
-		record.setId(id);
 		records.put(id, record);
 		return id;
 	}
 	
-	public synchronized boolean updateRecord(final Record record) {
-		if (! records.containsKey(record.getId())) {
+	public synchronized boolean updateRecord(final int id, final Record record) {
+		if (! records.containsKey(id)) {
 			return false;
 		}
-		records.put(record.getId(), record);
+		records.put(id, record);
 		return true;
 	}
 	

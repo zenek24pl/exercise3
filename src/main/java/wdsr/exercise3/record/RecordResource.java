@@ -1,10 +1,27 @@
 package wdsr.exercise3.record;
 
+import java.util.List;
+
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import wdsr.exercise3.model.Record;
 
 @Path("/records")
 public class RecordResource {
@@ -31,7 +48,5 @@ public class RecordResource {
 	 * 
 	 * * DELETE https://localhost:8090/records/{id}
 	 * ** Deletes an existing record
-	 * 
-	 * Media type application/xml will be used for all requests/responses.
 	 */
 }
