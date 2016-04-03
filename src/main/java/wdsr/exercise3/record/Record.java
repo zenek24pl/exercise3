@@ -1,4 +1,4 @@
-package wdsr.exercise3.model;
+package wdsr.exercise3.record;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;

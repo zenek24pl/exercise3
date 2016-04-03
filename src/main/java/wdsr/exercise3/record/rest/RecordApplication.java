@@ -1,4 +1,4 @@
-package wdsr.exercise3.record;
+package wdsr.exercise3.record.rest;
 
 import java.util.HashSet;
 import java.util.Set;

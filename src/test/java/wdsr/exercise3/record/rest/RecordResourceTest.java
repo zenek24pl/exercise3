@@ -1,4 +1,4 @@
-package wdsr.exercise3.record;
+package wdsr.exercise3.record.rest;
 
 import java.net.URI;
 import java.util.Arrays;
@@ -20,8 +20,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import wdsr.exercise3.MyServer;
-import wdsr.exercise3.model.Genre;
-import wdsr.exercise3.model.Record;
+import wdsr.exercise3.record.Genre;
+import wdsr.exercise3.record.Record;
+import wdsr.exercise3.record.rest.RecordApplication;
 
 import static org.junit.Assert.*;
 

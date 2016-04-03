@@ -8,7 +8,7 @@ apply plugin: 'application'
 sourceCompatibility = 1.8
 
 // Nazwa klasy, która stanowi punkt wejścia do aplikacji
-mainClassName = "wdsr.exercise3.server.Main"
+mainClassName = "wdsr.exercise3.Main"
 
 repositories {
     mavenCentral()
@@ -32,4 +32,15 @@ dependencies {
     
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
+}
+
+test.doFirst {
+    copy {
+        from 'build/resources/main/META-INF/beans.xml'
+        into 'build/classes/main/META-INF/'
+    }
+    copy {
+        from 'build/resources/test/META-INF/beans.xml'
+        into 'build/classes/test/META-INF/'
+    }
 }

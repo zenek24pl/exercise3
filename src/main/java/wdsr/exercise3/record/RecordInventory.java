@@ -8,8 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import wdsr.exercise3.model.Record;
-
 @ApplicationScoped
 public class RecordInventory {
 	private AtomicInteger counter;
