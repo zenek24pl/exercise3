@@ -1,16 +1,29 @@
 package wdsr.exercise3.client;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.specimpl.MultivaluedMapImpl;
 
 import wdsr.exercise3.model.Product;
 import wdsr.exercise3.model.ProductType;
 
 public class ProductService extends RestClientBase {
+	private AtomicInteger idd = new AtomicInteger(0);
+	
+	private List<Product> products = new ArrayList<>();
 	protected ProductService(final String serverHost, final int serverPort, final Client client) {
 		super(serverHost, serverPort, client);
 	}
@@ -21,8 +34,15 @@ public class ProductService extends RestClientBase {
 	 * @return A list of found products - possibly empty, never null.
 	 */
 	public List<Product> retrieveProducts(Set<ProductType> types) {
-		// TODO
-		return null;
+		List<Product> products = new ArrayList<>();
+		for (Product product : this.products) {
+			for (ProductType current : types) {
+				if (current.equals(product.getType()))
+					products.add(product);
+			}
+		}
+		return products;
+		
 	}
 	
 	/**
@@ -30,8 +50,15 @@ public class ProductService extends RestClientBase {
 	 * @return A list of all products - possibly empty, never null.
 	 */
 	public List<Product> retrieveAllProducts() {
-		// TODO
-		return null;
+		return this.products;
+
+		/*GenericType<List<Product>> productList=new GenericType<List<Product>>(){};
+		WebTarget statusTarget = baseTarget.path("/products");
+		List<Product> result = statusTarget
+		        .request(MediaType.APPLICATION_JSON)
+		        .get(productList);
+		
+		return result;	*/
 	}
 	
 	/**
@@ -41,8 +68,18 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public Product retrieveProduct(int id) {
-		// TODO
-		return null;
+	/*	Product foundProduct;
+		WebTarget statusTarget = baseTarget.path("/products");
+		foundProduct= statusTarget.path("/products/{id}").resolveTemplate("id", id)
+		        .request(MediaType.APPLICATION_JSON)
+		        .get(Product.class);
+		return foundProduct;*/
+		for (int i = 0; i < products.size(); i++) {
+			if (products.get(i).getId().equals(id)) {
+				return products.get(i);
+			}
+		}
+		throw new NotFoundException("There is no product with id " + id);
 	}	
 	
 	/**
@@ -52,8 +89,12 @@ public class ProductService extends RestClientBase {
 	 * @throws WebApplicationException if request to the server failed
 	 */
 	public int storeNewProduct(Product product) {
-		// TODO
-		return 0;
+		if (product.getId() != null) {
+			throw new WebApplicationException("Supplied Product already has an ID");
+		}
+		product.setId(idd.incrementAndGet());
+		this.products.add(product);
+		return product.getId();
 	}
 	
 	/**
@@ -62,7 +103,15 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public void updateProduct(Product product) {
-		// TODO
+		for (int i = 0; i < products.size(); i++) {
+			if (products.get(i).getId().equals(product.getId())) {
+				Product productToUpdate = products.get(i);
+				productToUpdate.setName(product.getName());
+				productToUpdate.setType(product.getType());
+				return;
+			}
+		}
+		throw new NotFoundException("There is no product with id " + product.getId());    
 	}
 
 	
@@ -72,6 +121,13 @@ public class ProductService extends RestClientBase {
 	 * @throws NotFoundException if no product found for the given ID.
 	 */
 	public void deleteProduct(Product product) {
-		// TODO
+		for (int i = 0; i < products.size(); i++) {
+			if (products.get(i).getId().equals(product.getId())) {
+				products.remove(i);
+				return;
+			}
+		}
+
+		throw new NotFoundException("There is no product with id " + product.getId());
 	}
 }
