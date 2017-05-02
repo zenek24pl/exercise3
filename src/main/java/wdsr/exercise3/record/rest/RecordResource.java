@@ -57,10 +57,11 @@ public class RecordResource {
 	@Produces(MediaType.APPLICATION_XML)
 	public Response createRecord(Record record,@Context UriInfo uriInfo){
 		if(record.getId()!=null){
-			return Response.status(Status.CONFLICT).entity("Product id need to be null to create").build();
+			return Response.status(Status.BAD_REQUEST).entity("Record id need to be null to create").build();
 		}
+		int recordInt=recordInventory.addRecord(record);
 		UriBuilder builder=uriInfo.getAbsolutePathBuilder();
-		builder.path(Integer.toString(record.getId()));
+		builder.path(Integer.toString(recordInt));
 		
 		return Response.created(builder.build()).build();
 	}
@@ -75,10 +76,10 @@ public class RecordResource {
 	@Path("/{id}")
 	@Consumes(MediaType.APPLICATION_XML)
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getRecordsById(Record record, @PathParam(value = "id") int id){
-		record=recordInventory.getRecord(id);
-		if(record.getId()!=null && record!=null ){
-			return Response.status(Status.OK).build();
+	public Response getRecordsById(@PathParam(value = "id") int id){
+		Record record=recordInventory.getRecord(id);
+		if(record!=null ){
+			return Response.status(Status.OK).entity(record).build();
 			
 		}
 		else{
@@ -99,13 +100,15 @@ public class RecordResource {
 	@Consumes(MediaType.APPLICATION_XML)
 	@Produces(MediaType.APPLICATION_XML)
 	public Response updateRecord(Record record, @PathParam(value = "id") int id){
-		if(record.getId()!=null && id!=record.getId() ){
-			return Response.status(Status.NOT_FOUND).entity("Product ID is different in request path and message body").build();
-			
+		if(record.getId()!=null && id!=record.getId()){
+			return Response.status(Status.BAD_REQUEST).entity("Record ID is different in request path and message body").build();
 		}
-		boolean recordUpdated=recordInventory.updateRecord(id, record);
-		if(recordUpdated){
+		if(recordInventory.updateRecord(id, record)){
 			return Response.status(Status.NO_CONTENT).build();
+		}
+		else{
+			return Response.status(Status.NOT_FOUND).entity("Record not Found").build();
+			
 		}
 		}
 	
@@ -120,12 +123,10 @@ public class RecordResource {
 	@Consumes(MediaType.APPLICATION_XML)
 	@Produces(MediaType.APPLICATION_XML)
 	public Response deleteRecord(@PathParam(value = "id") int id){
-		if(recordInventory.deleteRecord(id) ){
-			return Response.status(Status.NO_CONTENT).build();
-			
-		}
-		else{
-			return Response.status(Status.NOT_FOUND).build();
-		}
+	        if (recordInventory.deleteRecord(id)) {
+	            return Response.status(Response.Status.NO_CONTENT).build();
+	        } else {
+	            return Response.status(Response.Status.NOT_FOUND).entity("There is no Record with id="+id).build();
+	        }
 	}
 }
