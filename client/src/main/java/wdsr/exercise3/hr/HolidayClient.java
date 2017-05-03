@@ -1,32 +1,21 @@
 package wdsr.exercise3.hr;
 
-import java.net.URL;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import wdsr.exercise3.ws.*;
 
+import javax.jws.WebParam;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
-
-import wdsr.exercise3.hr.ws.*;
-import wdsr.exercise3.hr.ws.HolidayRequest;
-import wdsr.exercise3.hr.ws.HolidayResponse;
-import wdsr.exercise3.hr.ws.HolidayType;
-import wdsr.exercise3.hr.ws.HumanResourceService;
-
-
-
+import java.net.URL;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 // TODO Complete this class to book holidays by issuing a request to Human Resource web service.
 // In order to see definition of the Human Resource web service:
 // 1. Run HolidayServerApp.
 // 2. Go to http://localhost:8090/holidayService/?wsdl
-public class HolidayClient {
-	/**
-	 * Creates this object
-	 * @param wsdlLocation URL of the Human Resource web service WSDL
-	 */
+public class HolidayClient{
+
 	private HumanResourceService humanResourceService;
 
     public HolidayClient(URL wsdlLocation) {
@@ -65,8 +54,8 @@ public class HolidayClient {
     	holidayRequest.setHoliday(holidayType);
     	
     	HumanResource humanResourcePort=humanResourceService.getHumanResourcePort();
-		
-    	holidayResponse=humanResourcePort.holiday(holidayRequest);
+    	
+		holidayResponse=humanResourcePort.holiday(holidayRequest);
 		
 		return holidayResponse.getRequestId();
 	}
@@ -79,7 +68,6 @@ public class HolidayClient {
 				try {
 					df = DatatypeFactory.newInstance();
 				} catch (DatatypeConfigurationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
     		      if (date == null) {
@@ -90,4 +78,5 @@ public class HolidayClient {
     		         return df.newXMLGregorianCalendar(gc);
     		      }
     		   }
-    }
+
+}
